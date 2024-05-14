@@ -1,25 +1,6 @@
-<?PHP
-
-
-?>
-
-<html>
-<head>
-    <title>
-        <?php
-        // Print the page title
-        if (defined('TITLE')) {
-            // Is the title defined
-            print TITLE;
-        } else {
-            // Title is not defined
-            print "All about the main title of the page...";
-        }
-        ?>
-    </title>
-    <link rel="stylesheet" href="css/styles_css.css">
-</head>
-<body>
 <div class="footer">
-    <div class="footertText">All rights reserve. Copyright 2024 by RealLife BGC</div>
+    <div class="footerText">All rights reserved. Copyright 2024 by RealLife BGC</div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+</body>
+</html>
