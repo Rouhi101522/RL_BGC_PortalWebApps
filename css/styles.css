@@ -1,0 +1,23 @@
+/*
+THIS IS THE CSS FOR THE OVERALL PORTAL. 
+ALWAYS PUT THE STYLES ON THE SECTION WHERE IT BELONG
+FOR ORGANIZATION PURPOSES.
+-IRENEO
+*/
+
+
+/*HEADER*/
+
+/*END OF HEADER*/
+
+/*FOOTER*/
+#footer{
+    background: linear-gradient(90deg, hsla(214, 46%, 54%, 1) 0%, hsla(180, 31%, 80%, 1) 50%, hsla(121, 60%, 66%, 1) 100%);
+
+}
+
+/*END OF FOOTER*/
+
+/*INDEX*/
+
+/*END OF INDEX*/

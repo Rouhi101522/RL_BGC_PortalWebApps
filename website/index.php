@@ -12,7 +12,7 @@
 DEFINE("TITLE","APPLICATION");
 include_once("website/templates/header.php");
 ?>
-    <div class="signInBody" style="padding-top: 6em;">
+    <div class="signInBody" style=" padding-top: 6em;">
       <div class="container-fluid">
         <div class="row">
             <!-- Left side for signing -->
