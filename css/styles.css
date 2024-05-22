@@ -9,7 +9,6 @@ FOR ORGANIZATION PURPOSES.
 /* HEADER */
 .header {
     height: 5em;
-    position: fixed;
     width: 100%;
     top: 0;
 }
@@ -33,6 +32,11 @@ FOR ORGANIZATION PURPOSES.
 
 /* END OF HEADER */
 
+
+/* BODY */
+.body{
+    padding-top: 10em;
+}
 
 /* FOOTER */
 .footer {
