@@ -3,8 +3,9 @@ DEFINE("TITLE", "APPLICATION");
 include_once("website/templates/header.php");
 ?>
 
+
 <body>
-<div class="container" ;">
+<div class="container">
     <div class="row">
         <!-- Left side for signing -->
         <div class="col-md-9">
