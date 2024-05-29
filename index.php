@@ -1,40 +1,49 @@
 <?php 
-DEFINE("TITLE", "APPLICATION");
-include_once("website/templates/header.php");
+DEFINE("TITLE", "LOGIN");
 ?>
-
-
-<body>
-<div class="container">
-    <div class="row">
-        <!-- Left side for signing -->
-        <div class="col-md-9">
-            <p>This is the right side (3/4).</p>
-
-            <div class="login-form-container">
-                <div class="login-form d-flex flex-column">
-                    <form class="d-flex flex-column ng-valid ng-dirty ng-touched" novalidate>
-                        <label class="sub-section-title-primary" for="username">Email Address</label>
-                        <input class="form-control" formcontrolname="username" id="username" name="username" type="text">
-                        <label class="sub-section-title-primary pt-20" for="password">Password</label>
-                        <input class="form-control" formcontrolname="password" id="password" name="password" type="password">
-                        <p class="ml-auto pt-10 sub-section-title-secondary" style="cursor: pointer;"><a href="acct_cre.php">Create an account</a></p>
-                        <div class="pt-20 text-center">
-                            <button class="button-sign-in btn btn-primary" type="submit">Sign In</button>
-                        </div>
-                    </form>
-                </div>
+<!DOCTYPE HTML>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Log In</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="bootstrap-5.3.3-dist\bootstrap-5.3.3-dist\css\bootstrap.min.css"> <!-- local Btsrp file -->
+    
+    <body>
+    <nav class="navbar">
+  <div class="container-fluid">
+  <img class="navbar-brand" src="assets\rl\Logo\Real LIFE Logo ON black.png" alt="Logo">
+    </div>
+    </nav>
+        <div class="main-content">
+            <div class="left-panel">
+                <h1><i>Hello aspiring RealLife Scholar</i></h1>
+                <form action="login.php" method="post">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                    
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                    <br>
+                    <button type="submit">Sign In</button>
+                </form>
+                <p>Don't have an account? <a href="acct_cre.php">Create one!</a></p>
+            
             </div>
-        </div>
-        <!-- Right side for bg -->
-        <div class="col-md-3">
-            <p>This is the left side (1/4).</p>
-            <img src="assets/rl/testSamplePics.jpg" alt="Image" class="img-fluid" style="height: auto; max-height: 30em;">
+            <div class="right-panel">
+                <img src="assets\rl\REALLIFE PORTAL GRAPHIC DESIGNS.jpeg" alt="Group Photo">
+            </div>
+
         </div>
     </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
-
 </body>
 </html>
+
+<?PHP
+ini_set('display_errors', 1);
+error_reporting(E_ALL & ~E_NOTICE);
+
+
+
+?>

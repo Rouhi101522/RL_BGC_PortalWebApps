@@ -2,7 +2,7 @@
 DEFINE("TITLE", "ACCOUNT CREATION");
 include_once("website/templates/header.php");
 ?>
-
+ 
 <body>
 <div class="signUpBody" style="padding-top: 6em;">
     <div class="container-fluid">
@@ -23,7 +23,7 @@ include_once("website/templates/header.php");
                         <label for="confirm_password" class="form-label">Confirm Password</label>
                         <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
                     </div>
-                    <button type="submit" class="btn btn-primary">Create Account</button>
+                    <button type="submit">Create Account</button>
                 </form>
             </div>
         </div>

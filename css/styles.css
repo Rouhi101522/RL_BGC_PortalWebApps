@@ -6,20 +6,30 @@ FOR ORGANIZATION PURPOSES.
 */
 
 /* HEADER */
-.header {
+.navbar {
     height: 5em;
     width: 100%;
     top: 0;
+    background: #2f352c;
 }
 
-.header .navbar-brand img {
-    width: 5cm;
-    width: 150px;
+.navbar-brand {
+    width: 9em;
     height: auto;
+    
 }
 
-.header .navbar {
-    background: linear-gradient(90deg, hsla(214, 46%, 54%, 1) 0%, hsla(180, 31%, 80%, 1) 50%, hsla(121, 60%, 66%, 1) 100%);
+.offcanvas{
+    background-color:#8bc866;
+}
+
+.offcanvas-header {
+    background: #2f352c;
+    color: white;
+}
+
+.offcanvas-body {
+    background: #8bc866;
 }
 
 .navbar-nav .nav-link {
@@ -31,42 +41,241 @@ FOR ORGANIZATION PURPOSES.
 
 /* END OF HEADER */
 
-
-/* BODY */
-.body{
-    padding-top: 10em;
-}
-
 /* FOOTER */
+
 .footer {
-    background: linear-gradient(90deg, hsla(214, 46%, 54%, 1) 0%, hsla(180, 31%, 80%, 1) 50%, hsla(121, 60%, 66%, 1) 100%);
+    background-color:#8bc866;
     color: rgb(27, 27, 27);
     text-align: center;
     padding: 1em 0;
-    position: fixed;
+    position: relative;
     width: 100%;
     bottom: 0;
 }
 
 /* END OF FOOTER */
-
-
-/* INDEX */
-.signInBody, .signUpBody {
-    padding-top: 2em;
+.container {
+    display: flex;
+    flex-direction: column;
 }
 
-.login-form-container {
-    background-color: #f9f9f9;
-    padding: 5em;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+/* LOGIN PAGE (INDEX.PHP) */
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
 }
 
-.login-form label {
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #8bc866;
+    padding: 10px;
+}
+
+.logo img {
+    height: 65px;
+}
+.nav-menu {
+    display: flex;
+    align-items: center;
+}
+
+.menu-icon {
+    font-size: 30px;
+    cursor: pointer;
+    display: none;
+}
+
+.nav-links {
+    list-style: none;
+    padding: 10px;
+    margin: 0;
+    margin-bottom: 900px;
+}
+.nav-links li {
+    margin-bottom: 10px;
+}
+.nav-links a {
+    text-decoration: none;
+    color: #000;
     font-weight: bold;
 }
 
-.login-form .btn {
-    width: 100%;
+.main-content {
+    display: flex;
+    flex: 1;
 }
+
+.left-panel {
+    flex: 1;
+    padding: 40px;
+    background-color: #fff;
+    margin: 2%;
+}
+
+.left-panel h1 {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+input {
+    margin-top: 5px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button {
+    margin-top: 20px;
+    padding: 10px;
+    background-color:#8bc866;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.right-panel {
+    flex: 1;
+    background-color: #f4f4f4;
+}
+
+.right-panel img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* END OF LOGIN PAGE DESIGN */
+
+/* ACCOUNT CREATION PAGE */
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* ACCOUNT CREATION PAGE */
+
+/* ACCOUNT INFO PAGE */
+.main-content{
+    margin-top: 2%;
+    height: 100vh;
+}
+
+/* END OF ACCOUNT INFO PAGE */
+
+/* HOME PAGE */
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+.welcomeApplicant {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    background-color: #f8f9fa;
+    margin-bottom: 20px;
+    flex-direction: column;
+    text-align: center;
+}
+
+.welcomeApplicant img {
+    border-radius: 50%;
+    margin-bottom: 20px;
+    width: 100px;
+    height: 100px;
+}
+
+.welcomeDetails {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.appStatus {
+    margin-top: 10px;
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+.container {
+    width: 100%;
+    padding: 10px;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 10px 0;
+}
+
+.col {
+    flex: 1;
+    padding: 10px;
+}
+
+.file-drop-area {
+    border: 2px dashed #007bff;
+    border-radius: 5px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    color: #007bff;
+    margin-top: 10px;
+}
+
+.file-drop-area.dragover {
+    background-color: #f8f9fa;
+}
+
+.file-list {
+    margin-top: 10px;
+}
+
+.mt-3 {
+    margin-top: 1rem;
+}
+
+.requirement-row {
+    flex-direction: column;
+}
+
+.status-col, .requirement-col, .upload-col {
+    padding: 5px;
+}
+
+@media (min-width: 768px) {
+    .requirement-row {
+        flex-direction: row;
+    }
+    .file-drop-area {
+        margin-top: 0;
+    }
+}
+
+@media (min-width: 375px) {
+    .status-col, .requirement-col, .upload-col {
+        flex: 3;
+    }
+}
+
+/* END OF HOME PAGE */
