@@ -1,6 +1,5 @@
 <?php
 session_start();
-
 DEFINE("TITLE", "RL | LOGIN");
 
 include_once("website/config.php");
@@ -120,6 +119,9 @@ if (isset($_POST['submit'])) {
                     $stmt = $conn->prepare("UPDATE acc_inf SET is_active = 1 WHERE user = ?");
                     $stmt->execute([$email]);
                     $_SESSION['status-code'] = "success";
+
+                    $_SESSION['authorized'] = true;
+					$_SESSION['auth_user'] = $applicant_ID;
 
                     if($is_profile_set == '0'){
                         header("Location: acct_info.php");

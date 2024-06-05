@@ -1,5 +1,11 @@
 <?php
 session_start();
+include_once("website/config.php");
+
+  if($_SESSION['authorized'] == false){
+    header("location: index.php");
+  }
+
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Validate and upload the profile image
@@ -8,20 +14,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $imageFileType = strtolower(pathinfo($uploadFile, PATHINFO_EXTENSION));
     $allowedTypes = ['jpg', 'jpeg', 'png', 'pdf'];
 
-
-    //Uploading 
+    // Uploading 
     if (in_array($imageFileType, $allowedTypes)) {
         if (move_uploaded_file($_FILES['profileImage']['tmp_name'], $uploadFile)) {
             // Prepare PDO statement
             try {
-                $pdo = new PDO($dsn, $username, $password, $options);
-                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-                $sql = "INSERT INTO applicants (profileImage, name, address, sex, religion, contactNumber, nationality, birthday, birthplace, status)
-                        VALUES (:profileImage, :name, :address, :sex, :religion, :contactNumber, :nationality, :birthday, :birthplace, :status)";
+              // PREPARE FOR SESSION SETTING
+              //  $sql = "INSERT INTO person_inf (applicant_profile, name, address, sex, religion, contact_number, nationality, birthday, birthplace, marital_stat)
+              //           VALUES (:profileImage, :name, :address, :sex, :religion, :contactNumber, :nationality, :birthday, :birthplace, :status)";
                 
-                $stmt = $pdo->prepare($sql);
+              //   $stmt = $conn->prepare($sql);
+              //   $stmt->execute([
+              //       ':applicant_ID' => $_POST['applicant_ID'],
+              //       ':profileImage' => $uploadFile,
+              //       ':name' => $_POST['name'],
+              //       ':address' => $_POST['address'],
+              //       ':sex' => $_POST['sex'],
+              //       ':religion' => $_POST['religion'],
+              //       ':contactNumber' => $_POST['contactNumber'],
+              //       ':nationality' => $_POST['nationality'],
+              //       ':birthday' => $_POST['birthday'],
+              //       ':birthplace' => $_POST['birthplace'],
+              //       ':status' => $_POST['marital_status'],
+
+                
+                $sql = "INSERT INTO person_inf (applicant_ID, applicant_profile, name, address, sex, religion, contact_number, nationality, birthdate, birthplace, marital_stat)
+                        VALUES (:auth_user,:profileImage, :name, :address, :sex, :religion, :contactNumber, :nationality, :birthday, :birthplace, :status)";
+                
+                $stmt = $conn->prepare($sql);
                 $stmt->execute([
+                    ':auth_user'=>$_SESSION['auth_user'],
                     ':profileImage' => $uploadFile,
                     ':name' => $_POST['name'],
                     ':address' => $_POST['address'],
@@ -31,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     ':nationality' => $_POST['nationality'],
                     ':birthday' => $_POST['birthday'],
                     ':birthplace' => $_POST['birthplace'],
-                    ':status' => $_POST['status'],
+                    ':status' => $_POST['marital_status'],
                 ]);
                 echo "Data successfully submitted.";
 
@@ -68,25 +90,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <img class="navbar-brand" src="assets/rl/Logo/Real LIFE Logo ON black.png" alt="Logo">
   </div>
 </nav>
-<div class="acct_info" style="padding-top: 5%;">
+<div class="acct_info" style="padding-top: 5px;">
 <div class="container mt-5 center">
   <h2 class="mb-4">Applicant Information</h2>
 
-  <form action="submit.php" method="post" enctype="multipart/form-data">
-  <?php
+  <form method="POST" enctype="multipart/form-data">
+      <?php
       // Display the profile image or a placeholder
-      $profileImagePath = isset($_FILES['profileImage']['name']) ? 'uploads/' . basename($_FILES['profileImage']['name']) : 'path/to/placeholder/image.png';
+      $defaultIcon = 'assets/rl/Logo/profile-icon.png';
+      $profileImagePath = isset($_FILES['profileImage']['name']) && !empty($_FILES['profileImage']['name']) ? 'uploads/' . basename($_FILES['profileImage']['name']) : $defaultIcon;
       ?>
       <div class="mb-3">
-        <img src="<?php echo $profileImagePath; ?>" alt="Profile Image" class="img-thumbnail" style="width: 150px; height: 150px;">
+        <img id="profileImagePreview" src="<?php echo $profileImagePath; ?>" alt="Profile Image" class="img-thumbnail" style="width: 150px; height: 150px;">
       </div>
 
       <div class="mb-3">
         <label for="profileImage" class="form-label">Profile Image:</label>
-        <input type="file" id="profileImage" name="profileImage" class="form-control" accept="image/*" required>
+        <input type="file" id="profileImage" name="profileImage" class="form-control" accept="image/*" required onchange="previewImage(event)">
       </div>
-
-     
 
     <div class="mb-3">
       <label for="name" class="form-label">Name:</label>
@@ -133,8 +154,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 
     <div class="mb-3">
-      <label for="status" class="form-label">Status:</label>
-      <input type="text" id="status" name="status" class="form-control" required>
+      <label for="marital_status" class="form-label">Status:</label>
+      <select id="marital_status" name="marital_status" class="form-select" required>
+        <option value="">Select</option>
+        <option value="Single">Single</option>
+        <option value="Married">Married</option>
+        <option value="Legally Separated">Legally Separated</option>
+      </select>
     </div>
 
     <button type="submit" class="btn btn-primary">Submit</button>
@@ -145,5 +171,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <?php
 include_once("website/templates/footer.php");
 ?>
+
+<script>
+function previewImage(event) {
+    var reader = new FileReader();
+    reader.onload = function() {
+        var output = document.getElementById('profileImagePreview');
+        output.src = reader.result;
+    }
+    reader.readAsDataURL(event.target.files[0]);
+}
+</script>
+
 </body>
 </html>

@@ -4,7 +4,9 @@ DEFINE("TITLE", "WELCOME ASPIRING SCHOLAR");
 include_once("website/templates/header.php");
 
 
-$applicant_id = $_SESSION['applicant_id'];
+if($_SESSION['authorized'] == false){
+    header("location: index.php");
+  }
 
 // fetch file status
 // file is set

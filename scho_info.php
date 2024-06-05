@@ -2,6 +2,9 @@
 session_start();
 include_once("website/config.php");
 
+if($_SESSION['authorized'] == false){
+    header("location: index.php");
+  }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
@@ -12,12 +15,15 @@ $tuition = $_POST['tuition'];
 $course = $_POST['course'];
 $currentYearLevel = $_POST['curYear'];
 
+$applicant_ID = $_SESSION['auth_user'];
+
 // Prepare and bind
 $stmt = $conn->prepare("INSERT INTO acad_inf (applicant_ID,school_name, school_type, tuition_fee, course, cur_year) VALUES (?, ?, ?, ?, ?, ?)");
 $stmt->execute([$applicant_ID, $schoolName, $schoolType, $tuition, $course, $currentYearLevel]);
 
 if ($stmt->execute()) {
     echo "New record created successfully";
+    header("location: home.php");
 } else {
     echo "Error: " . $e->getMessage();
 }
@@ -47,7 +53,7 @@ if ($stmt->execute()) {
 <div class="container mt-5 center">
   <h2 class="mb-4">School Information</h2>
 
-  <form action="submit.php" method="post" enctype="multipart/form-data">
+  <form method="POST" enctype="multipart/form-data">
     <div class="mb-3">
       <label for="name" class="form-label">School Name:</label>
       <input type="text" id="school_name" name="school_name" placeholder="(eg. University of Makati)" class="form-control" required>
