@@ -80,6 +80,7 @@ if (isset($_GET['verification'])) {
 
 </html>
 
+
 <?php
 ini_set('display_errors', 1);
 error_reporting(E_ALL & ~E_NOTICE);
@@ -101,6 +102,8 @@ if (isset($_POST['submit'])) {
         $is_active = $data['is_active'];
         $is_applicant = $data['is_applicant'];
         $is_verified = $data['is_verified'];
+        $is_profile_set = $data['is_profile_set'];
+
 
         if ($pass == $password) {
             if ($is_verified == '0') {
@@ -117,7 +120,12 @@ if (isset($_POST['submit'])) {
                     $stmt = $conn->prepare("UPDATE acc_inf SET is_active = 1 WHERE user = ?");
                     $stmt->execute([$email]);
                     $_SESSION['status-code'] = "success";
-                    header("Location: home.php");
+
+                    if($is_profile_set == '0'){
+                        header("Location: acct_info.php");
+                    }else{
+                        header("Location: home.php");
+                    }
                     exit;
                 }
             }

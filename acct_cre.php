@@ -1,9 +1,6 @@
 
 <?php
 session_start();
-DEFINE("TITLE", "ACCOUNT CREATION");
-
-
 ini_set('display_errors', 1);
 error_reporting(E_ALL & ~E_NOTICE);
 
@@ -23,6 +20,7 @@ if (isset($_POST['submit'])) {
     $verification_code = rand(100000,999999);
     $is_applicant = '1';
 
+#VALIDATIONS
     if ($password != $passcheck) {
         $_SESSION['status'] = "Passwords do not match. Please try again.";
         header("Location: acct_cre.php");
@@ -35,13 +33,13 @@ if (isset($_POST['submit'])) {
         exit();
     }
 
+    //ADD password validations
     if (strlen($password) < 8) {
         $_SESSION['status'] = "Password must be at least 8 characters long.";
         header("Location: acct_cre.php");
         exit();
     }
 
-    //ADD password validations
 
     $passwordHashed = md5($password);
 
@@ -97,9 +95,19 @@ if (isset($_POST['submit'])) {
 }
 ?>
 
-<?PHP
-include_once("website/templates/header.php");
-?>
+<!DOCTYPE HTML>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="assets\rl\Logo\favicon.ico">
+    <title>Account Creation</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="bootstrap-5.3.3-dist/bootstrap-5.3.3-dist/css/bootstrap.min.css"> <!-- local Bootstrap file -->
+</head>
+
 
 <div class="signUpBody" style="padding-top: 6em; height: 92vh;">
     <div class="container">
