@@ -1,6 +1,11 @@
 <?php 
 DEFINE("TITLE", "MESSAGES");
 include_once("website/templates/header.php");
+
+if($_SESSION['authorized'] == false){
+    header("location: index.php");
+  }
+
 ?>
 
 <div class="inbox" style="padding: 150px;">

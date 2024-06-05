@@ -18,43 +18,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (in_array($imageFileType, $allowedTypes)) {
         if (move_uploaded_file($_FILES['profileImage']['tmp_name'], $uploadFile)) {
             // Prepare PDO statement
-            try {
-              // PREPARE FOR SESSION SETTING
-              //  $sql = "INSERT INTO person_inf (applicant_profile, name, address, sex, religion, contact_number, nationality, birthday, birthplace, marital_stat)
-              //           VALUES (:profileImage, :name, :address, :sex, :religion, :contactNumber, :nationality, :birthday, :birthplace, :status)";
-                
-              //   $stmt = $conn->prepare($sql);
-              //   $stmt->execute([
-              //       ':applicant_ID' => $_POST['applicant_ID'],
-              //       ':profileImage' => $uploadFile,
-              //       ':name' => $_POST['name'],
-              //       ':address' => $_POST['address'],
-              //       ':sex' => $_POST['sex'],
-              //       ':religion' => $_POST['religion'],
-              //       ':contactNumber' => $_POST['contactNumber'],
-              //       ':nationality' => $_POST['nationality'],
-              //       ':birthday' => $_POST['birthday'],
-              //       ':birthplace' => $_POST['birthplace'],
-              //       ':status' => $_POST['marital_status'],
-
-                
-                $sql = "INSERT INTO person_inf (applicant_ID, applicant_profile, name, address, sex, religion, contact_number, nationality, birthdate, birthplace, marital_stat)
-                        VALUES (:auth_user,:profileImage, :name, :address, :sex, :religion, :contactNumber, :nationality, :birthday, :birthplace, :status)";
+            try {              
+                $sql = "INSERT INTO person_inf (applicant_ID, applicant_profile, last_name,first_name, middle_name, house_num, street, brgy, city, sex, religion, contact_number, nationality, birthdate, birthplace, marital_stat)
+                        VALUES (:auth_user, :profileImage, :last_name, :first_name, :middle_name, :house_num, :street, :barangay, :city, :sex, :religion, :contactNumber, :nationality, :birthday, :birthplace, :status)";
                 
                 $stmt = $conn->prepare($sql);
                 $stmt->execute([
                     ':auth_user'=>$_SESSION['auth_user'],
                     ':profileImage' => $uploadFile,
-                    ':name' => $_POST['name'],
-                    ':address' => $_POST['address'],
+                    ':last_name' => $_POST['lname'],
+                    ':first_name' => $_POST['fname'],
+                    ':middle_name' => $_POST['midname'],
+                    ':house_num' => $_POST['house_num'],
+                    ':street' => $_POST['street'],
+                    ':barangay' => $_POST['brgy'],
+                    ':city' => $_POST['city'],
                     ':sex' => $_POST['sex'],
                     ':religion' => $_POST['religion'],
                     ':contactNumber' => $_POST['contactNumber'],
                     ':nationality' => $_POST['nationality'],
                     ':birthday' => $_POST['birthday'],
                     ':birthplace' => $_POST['birthplace'],
-                    ':status' => $_POST['marital_status'],
+                    ':status' => $_POST['marital_status'],                   
                 ]);
+
+                #UPDATE THE STATUS OF PROFILE SET 
+                $sql= "UPDATE acc_inf SET is_profile_set = ? WHERE applicant_ID=?";
+                $stmt = $conn->prepare($sql);
+                $stmt->execute([1,$_SESSION['auth_user']]);
+
                 echo "Data successfully submitted.";
 
                 header("location:scho_info.php");
@@ -109,14 +101,38 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <input type="file" id="profileImage" name="profileImage" class="form-control" accept="image/*" required onchange="previewImage(event)">
       </div>
 
-    <div class="mb-3">
-      <label for="name" class="form-label">Name:</label>
-      <input type="text" id="name" name="name" class="form-control" required>
-    </div>
+      <div class="mb-3">
+        <label for="name" class="form-label">Name:</label>
+        <div class="row">
+          <div class="col-md-4">
+            <input type="text" id="lname" name="lname" class="form-control" placeholder="Last Name" required>
+          </div>
+          <div class="col-md-4">
+            <input type="text" id="fname" name="fname" class="form-control" placeholder="First Name" required>
+          </div>
+          <div class="col-md-4">
+            <input type="text" id="midname" name="midname" class="form-control" placeholder="Middle Name" required>
+          </div>
+        </div>
+      </div>
+
 
     <div class="mb-3">
       <label for="address" class="form-label">Address:</label>
-      <textarea id="address" name="address" class="form-control" rows="4" required></textarea>
+      <div class="row">
+          <div class="col-md-3">
+            <input type="text" id="house_num" name="house_num" class="form-control" placeholder="House Number" required>
+          </div>
+          <div class="col-md-3">
+            <input type="text" id="street" name="street" class="form-control" placeholder="Street" required>
+          </div>
+          <div class="col-md-3">
+            <input type="text" id="brgy" name="brgy" class="form-control" placeholder="Barangay" required>
+          </div>
+          <div class="col-md-3">
+            <input type="text" id="city" name="city" class="form-control" placeholder="City" required>
+          </div>
+        </div>
     </div>
 
     <div class="mb-3">
@@ -135,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <div class="mb-3">
       <label for="contactNumber" class="form-label">Contact Number:</label>
-      <input type="tel" id="contactNumber" name="contactNumber" class="form-control" required>
+      <input type="number" id="contactNumber" name="contactNumber" class="form-control" required>
     </div>
 
     <div class="mb-3">
