@@ -1,15 +1,18 @@
 /*
 THIS IS THE CSS FOR THE OVERALL PORTAL. 
 ALWAYS PUT THE STYLES ON THE SECTION WHERE IT BELONG
+IF THERE IS NO SECTION YET, PUT A COMMENT ON IT'S BEGINING AND END
 FOR ORGANIZATION PURPOSES.
 -IRENEO
 */
+
+/* standard content height header(12vh) + body(88vh) */
+
 
 /* HEADER */
 .navbar {
     height: 5em;
     width: 100%;
-    top: 0;
     background: #2f352c;
 }
 
@@ -48,14 +51,12 @@ FOR ORGANIZATION PURPOSES.
     color: rgb(27, 27, 27);
     text-align: center;
     padding: 1em 0;
-    position: relative;
     width: 100%;
-    bottom: 0;
-}
+} 
 
 /* END OF FOOTER */
 .container {
-    display: flex;
+    display: flex; 
     flex-direction: column;
 }
 
@@ -162,19 +163,39 @@ button {
 
 /* END OF LOGIN PAGE DESIGN */
 
+
+/*ALERT*/
+.alert-success {
+    background-color: #42ba96;
+}
+
+.alert-danger {
+    background-color: #fc5555;
+}
+
+.alert-info {
+    background-color: #2E9AFE;
+}
+
+.alert-warning {
+    background-color: #ff9966;
+}
+/*ALERT*/
+
+
+
 /* ACCOUNT CREATION PAGE */
 .container {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+
 }
 
 /* ACCOUNT CREATION PAGE */
 
 /* ACCOUNT INFO PAGE */
 .main-content{
-    margin-top: 2%;
-    height: 100vh;
+    height: 88vh; 
 }
 
 /* END OF ACCOUNT INFO PAGE */
@@ -215,6 +236,10 @@ body {
     color: white;
     border: none;
     border-radius: 5px;
+}
+.reqTab{
+    padding-top: 12vh;
+    margin: 20px
 }
 
 .container {
@@ -279,3 +304,9 @@ body {
 }
 
 /* END OF HOME PAGE */
+
+.center {
+    margin: auto;
+    width: 50%;
+    padding: 10px;
+  }
