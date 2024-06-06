@@ -116,6 +116,20 @@ if (isset($_POST['submit'])) {
             <div class="col-md-6 offset-md-3">
                 <h2 class="text-center">Create an Account</h2>
                 <form class="mt-4" method="POST" action="">
+                <div class="message">
+                        <?php 
+                        if(isset($_SESSION['status'])){
+                            ?>
+                            <div class="alert alert-success d-flex align-items-center" role="alert">
+                                <div>
+                                    <?= $_SESSION['status'] ?>
+                                </div>
+                            </div>
+                            <?php
+                            unset($_SESSION['status']);
+                        }
+                        ?>
+                    </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email Address</label>
                         <input type="email" class="form-control" id="email" name="email" required>
@@ -127,20 +141,6 @@ if (isset($_POST['submit'])) {
                     <div class="mb-3">
                         <label for="confirm_password" class="form-label">Confirm Password</label>
                         <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
-                    </div>
-                    <div class="message">
-                        <?php 
-                        if(isset($_SESSION['status'])){
-                            ?>
-                            <div class="alert alert-danger d-flex align-items-center" role="alert">
-                                <div>
-                                    <?= $_SESSION['status'] ?>
-                                </div>
-                            </div>
-                            <?php
-                            unset($_SESSION['status']);
-                        }
-                        ?>
                     </div>
                     <button type="submit" name="submit" class="btn btn-primary">Create Account</button>
                 </form>
