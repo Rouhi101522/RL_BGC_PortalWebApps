@@ -1,15 +1,31 @@
 <?php
 session_start();
 DEFINE("TITLE", "WELCOME ASPIRING SCHOLAR");
-include_once("website/templates/header.php");
 include_once("website/config.php");
 
-$applicant_ID = $_SESSION['auth_user'];
+include_once("website/templates/header.php");
 
-if (!isset($_SESSION['authorized']) || $_SESSION['authorized'] == false) {
+
+//AUTH
+$applicant_ID = $_SESSION['auth_user'];
+if ($_SESSION['authorized'] == false) {
     header("location: index.php");
-    exit();
 }
+
+$stmt = $conn->prepare("SELECT applicant_profile FROM person_inf WHERE applicant_ID = ?");
+$stmt->execute([$applicant_ID]);
+$data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// Ensure that the image data exists
+if ($data && !empty($data['applicant_profile'])) {
+    $imageData = $data['applicant_profile'];
+    $imageType = 'image/jpeg/png'; // Adjust this based on your stored image type
+} else {
+    // Handle the case where no image is found
+    $defaultIcon = 'assets/rl/Logo/profile-icon.png';
+    $imageData = $defaultIcon ;
+}
+
 
 // For Person Details
 $stmt = $conn->prepare("SELECT * FROM person_inf WHERE applicant_ID = ? ");
@@ -17,18 +33,21 @@ $stmt->execute([$applicant_ID]);
 
 $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
+if ($data) {
 $applicant_profile = $data['applicant_profile'];
 $last_name = $data['last_name'];
 $first_name = $data['first_name'];
 $middle_name = $data['middle_name'];
+$name = $last_name . ", " . $first_name . " " . $middle_name;
+}
 
 // For Document Status
 function getDocumentStatusById($conn, $applicant_ID, $document_ID) {
-    $stmt = $conn->prepare("SELECT document_status, document_file, document_file_name FROM documents WHERE applicant_ID = ? AND document_type_id = ?");
+    $stmt = $conn->prepare("SELECT document_status FROM documents WHERE applicant_ID = ? AND document_ID = ?");
     $stmt->execute([$applicant_ID, $document_ID]);
-    return $stmt->fetch(PDO::FETCH_ASSOC);
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $data ? $data['document_status'] : '';
 }
-
 
 // This is the default status if the file is not yet uploaded
 function getStatusIcon($document_status) {
@@ -44,131 +63,261 @@ function getStatusIcon($document_status) {
 }
 
 if (isset($_POST['submit'])) {
+    echo "submit is toggled";
+    //FOR DOCUMENT 
     $requirements = [
-        'birth_certificate' => '1',
-        'second_previous_report_card' => '2',
-        'first_previous_report_card' => '3',
-        'current_report_card' => '4',
-        'proof_of_financial_status' => '5',
-        'course_prospectus' => '6',
-        'teachers_reference_form' => '7',
-        'community_leader_reference_form' => '8',
-        'admission_slip' => '9'
+        ['file' => $_FILES['birth_cert'], 'docu_type' => 'Birth Certificate'],
+        ['file' => $_FILES['sec_pre_rep_card'], 'docu_type' => 'Second Previous Report Card'],
+        ['file' => $_FILES['fir_pre_rep_card'], 'docu_type' => 'First Previous Report Card'],
+        ['file' => $_FILES['cur_rep_card'], 'docu_type' => 'Current Report Card'],
+        ['file' => $_FILES['proof_finance'], 'docu_type' => 'Proof of Financial Status'],
+        ['file' => $_FILES['course_prospectus'], 'docu_type' => 'Course Prospectus'],
+        ['file' => $_FILES['teach_ref_form'], 'docu_type' => 'Teacher Reference Form'],
+        ['file' => $_FILES['com_lead_ref_form'], 'docu_type' => 'Community Leader Reference Form'],
+        ['file' => $_FILES['admission_slip'], 'docu_type' => 'Admission Slip']
     ];
 
-    $updated = false; 
+    foreach ($requirements as $requirement) {
+        if ($requirement['file']['error'] == UPLOAD_ERR_OK && is_uploaded_file($requirement['file']['tmp_name'])) {
+            $document_file = file_get_contents($requirement['file']['tmp_name']);
 
-    foreach ($requirements as $input_name => $docu_type) {
-        if (isset($_FILES[$input_name]) && $_FILES[$input_name]['error'] == UPLOAD_ERR_OK) {
-            if (is_uploaded_file($_FILES[$input_name]['tmp_name'])) {
-                $document_file = file_get_contents($_FILES[$input_name]['tmp_name']);
-                $file_name = $_FILES[$input_name]['name']; 
-                
-                $stmt = $conn->prepare("SELECT * FROM documents WHERE applicant_id = ? AND document_type_id = ?");
-                $stmt->execute([$applicant_ID, $docu_type]);
-                $existingDoc = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmt = $conn->prepare("SELECT * FROM documents WHERE applicant_id = ? AND document_type_id = ?");
+            $stmt->execute([$applicant_ID, $requirement['docu_type']]);
+            $existingDoc = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                if ($existingDoc) {
-                    $stmt = $conn->prepare("UPDATE documents SET document_file_name = ?, document_status = ?, is_inserted = ? WHERE applicant_id = ? AND document_type_id = ?");
-                    $stmt->execute([$file_name, 'For Verification', '1', $applicant_ID, $docu_type]);
-                    $updated = true; 
-                } else {
-                    $stmt = $conn->prepare("INSERT INTO documents (applicant_id, document_type_id, document_file, document_file_name, document_status, is_inserted) VALUES (?, ?, ?, ?, ?, ?)");
-                    $stmt->execute([$applicant_ID, $docu_type, $document_file, $file_name, 'For Verification', '1']);
-                    $document_id = $conn->lastInsertId();
-
-                    $stmt = $conn->prepare("INSERT INTO app_docu (applicant_ID, document_id) VALUES (?, ?)");
-                    $stmt->execute([$applicant_ID, $document_id]);
-                }
-
-                $_SESSION['status'] = "Files Uploaded Successfully!";
+            if ($existingDoc) {
+                $stmt = $conn->prepare("UPDATE documents SET document_file = ?, document_status = ?, is_inserted = ? WHERE applicant_id = ? AND document_type_id = ?");
+                $stmt->execute([$document_file, 'For Verification', '1', $applicant_ID, $requirement['docu_type']]);
+            } else {
+                $stmt = $conn->prepare("INSERT INTO documents (applicant_id, document_type_id, document_file, document_status, is_inserted) VALUES (?, ?, ?, ?, ?)");
+                $stmt->execute([$applicant_ID, $requirement['docu_type'], $document_file, 'For Verification', '1']);
             }
-        } else {
-            echo "File upload error for $input_name: " . $_FILES[$input_name]['error'] . "<br>";
         }
     }
 
-    if ($updated) {
-        $_SESSION['update_status'] = "Updated Successfully!";
-        unset($_SESSION['status']); 
-    }
-
+    $_SESSION['status'] = "Files uploaded successfully!";
     header("Location: " . $_SERVER['PHP_SELF']);
-    exit();
 }
-
-
 ?>
 
-<div class="profileDets">
-</div>
-<div class="reqTab">
-    <form method="POST" enctype="multipart/form-data">
-        <div class="row">
-            <div class="col">   
-                <h5>STATUS</h5>
+    <div class="profileDets" style="padding-top: 100px; text-align: right; margin-right:10px;">
+    <div class="row">
+            <div class="col-12 col-md-2 order-md-2 text-md-right text-center">   
+                <img id="profileImagePreview" src="<?php echo $imageData; ?>" alt="Profile Image" class="img-thumbnail profileImage" style="width: 150px; height: 150px;margin-left:20px;">
             </div>
-            <div class="col">
-                <h5>LIST OF REQUIREMENTS NEEDED</h5>
-            </div>
-            <div class="col">
-                <h5>FILE UPLOAD</h5>
+            <div class="col-12 col-md-9 order-md-1">
+                <h5>Welcome, <?php echo $name; ?></h5>
+                <h5>Application Status: to follow $app_stat</h5>
             </div>
         </div>
-        <hr>
+    </div>
 
-        <!-- List of Requirements -->
-        <?php 
-            if (isset($_SESSION['status'])) {
-                $message = $_SESSION['status'];
-                unset($_SESSION['status']);
-            } elseif (isset($_SESSION['update_status'])) {
-                $message = $_SESSION['update_status'];
-                unset($_SESSION['update_status']);
-            }
-
-            if (isset($message)) {
-                echo '<div id="success-message" class="alert alert-success alert-dismissible fade show" role="alert" style="text-align:center;">
-                        ' . $message . '
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>';
-            }
-        ?>
-
-        <?php 
-            $documents = [
-                1 => 'Birth Certificate',
-                2 => 'Second Previous Report Card',
-                3 => 'First Previous Report Card',
-                4 => 'Current Report Card',
-                5 => 'Proof Of Financial Status',
-                6 => 'Course Prospectus',
-                7 => 'Teacher\'s Reference Form',
-                8 => 'Community Leader Reference Form',
-                9 => 'Admission Slip'
-            ];
-
-            foreach ($documents as $doc_id => $doc_name) {
-                $document_data = getDocumentStatusById($conn, $applicant_ID, $doc_id);
-                $document_status = isset($document_data['document_status']) ? $document_data['document_status'] : '';
-                $document_file = isset($document_data['document_file_name']) ? htmlspecialchars($document_data['document_file_name']) : '';
-                
-                echo '<div class="row requirement-row">
-                    <div class="col status-col">' . getStatusIcon($document_status) . '</div>
-                    <div class="col requirement-col"><p>' . $doc_name . '</p></div>
-                    <div class="col upload-col">
-                        <div class="file-drop-area">Drag & Drop or click to upload</div>
-                        <input type="file" class="file-input" name="' . strtolower(str_replace(' ', '_', $doc_name)) . '" multiple style="display: none;">
-                        <div class="file-list mt-3">' . ($document_file ? '<div>' . $document_file . '</div>' : '') . '</div>
+<hr>
+<div class="profileDets" style="padding-top: 100px; text-align: right; margin-right:20px;">
+    <div class="row">
+            <div class="col-8 col-md-4 order-md-2 text-md-right text-center">   
+                <img id="profileImagePreview" src="<?php echo $imageData; ?>" alt="Profile Image" class="img-thumbnail profileImage">
+            </div>
+            <div class="col-12 col-md-8 order-md-1">
+                <h5>Welcome, <?php echo $name; ?></h5>
+                <h5>Application Status: to follow $app_stat</h5>
+            </div>
+        </div>
+    </div>
+<div class="reqTab ">
+    <form method="POST" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col">   
+                    <h5>STATUS</h5>
+                </div>
+                <br>
+                <div class="col">
+                    <h5>LIST OF REQUIREMENTS NEEDED</h5>
+                </div>
+                <br>
+                <div class="col">
+                    <h5>FILE UPLOAD</h5>
+                </div>
+            </div>
+            <hr>
+            <!-- List of Requirements -->
+            <div class="row requirement-row">
+                <div class="col status-col">
+                    <?php
+                        $document_type_id="Birth Certificate";
+                        $document_status = getDocumentStatusById($conn, $applicant_ID, $document_type_id);
+                        echo getStatusIcon($document_status);
+                    ?>
                     </div>
-                </div>';
-            }
-
-            ?>
-
-        <button type="submit" name="submit">Submit Files</button>
+                <div class="col requirement-col">
+                    <p>BIRTH CERTIFICATE</p>
+                </div>
+                <div class="col upload-col">
+                    <div class="file-drop-area">
+                        Drag & Drop or click to upload
+                    </div>
+                    <input type="file" class="file-input" name="birth_cert" multiple style="display: none;">
+                    <div class="file-list mt-3"></div>
+                </div>
+            </div>
+            <div class="row requirement-row">
+                <div class="col status-col">
+                     <?php
+                        $document_type_id="Second Previous Report Card";
+                        $document_status = getDocumentStatusById($conn, $applicant_ID, $document_type_id);
+                        echo getStatusIcon($document_status);
+                    ?>
+                    </div>
+                <div class="col requirement-col">
+                    <p>SECOND PREVIOUS REPORT CARD</p>
+                </div>
+                <div class="col upload-col">
+                    <div class="file-drop-area">
+                        Drag & Drop or click to upload
+                    </div>
+                    <input type="file" class="file-input"  name="sec_pre_rep_card" multiple style="display: none;">
+                    <div class="file-list mt-3"></div>
+                </div>
+            </div>
+            <div class="row requirement-row">
+                <div class="col status-col">
+                     <?php
+                        $document_type_id="First Previous Report Card";
+                        $document_status = getDocumentStatusById($conn, $applicant_ID, $document_type_id);
+                        echo getStatusIcon($document_status);
+                    ?>
+                    </div>
+                <div class="col requirement-col">
+                    <p>FIRST PREVIOUS REPORT CARD</p>
+                </div>
+                <div class="col upload-col">
+                    <div class="file-drop-area">
+                        Drag & Drop or click to upload
+                    </div>
+                    <input type="file" class="file-input"  name="fir_pre_rep_card" multiple style="display: none;">
+                    <div class="file-list mt-3"></div>
+                </div>
+            </div>
+            <div class="row requirement-row">
+                <div class="col status-col">
+                     <?php
+                        $document_type_id="Current Report Card";
+                        $document_status = getDocumentStatusById($conn, $applicant_ID, $document_type_id);
+                        echo getStatusIcon($document_status);
+                    ?>
+                    </div>
+                <div class="col requirement-col">
+                    <p>CURRENT REPORT CARD</p>
+                </div>
+                <div class="col upload-col">
+                    <div class="file-drop-area">
+                        Drag & Drop or click to upload
+                    </div>
+                    <input type="file" class="file-input"  name="cur_rep_card" multiple style="display: none;">
+                    <div class="file-list mt-3"></div>
+                </div>
+            </div>
+            <div class="row requirement-row">
+                <div class="col status-col">
+                     <?php
+                        $document_type_id="Proof of Financial Status";
+                        $document_status = getDocumentStatusById($conn, $applicant_ID, $document_type_id);
+                        echo getStatusIcon($document_status);
+                    ?>
+                    </div>
+                <div class="col requirement-col">
+                    <p>PROOF OF FINANCIAL STATUS</p>
+                </div>
+                <div class="col upload-col">
+                    <div class="file-drop-area">
+                        Drag & Drop or click to upload
+                    </div>
+                    <input type="file" class="file-input" name="proof_finance" multiple style="display: none;">
+                    <div class="file-list mt-3"></div>
+                </div>
+            </div>
+            <div class="row requirement-row">
+                <div class="col status-col">
+                     <?php
+                        $document_type_id="Course Prospectus";
+                        $document_status = getDocumentStatusById($conn, $applicant_ID, $document_type_id);
+                        echo getStatusIcon($document_status);
+                    ?>
+                    </div>
+                <div class="col requirement-col">
+                    <p>COURSE PROSPECTUS</p>
+                </div>
+                <div class="col upload-col">
+                        <div class="file-drop-area">
+                            Drag & Drop or click to upload
+                        </div>
+                        <input type="file" class="file-input" name="course_prospectus" multiple style="display: none;">
+                        <div class="file-list mt-3"></div>
+                </div>
+            </div>
+            <div class="row requirement-row">
+                <div class="col status-col">
+                     <?php
+                        $document_type_id="Teacher Reference Form";
+                        $document_status = getDocumentStatusById($conn, $applicant_ID, $document_type_id);
+                        echo getStatusIcon($document_status);
+                    ?>
+                    </div>
+                <div class="col requirement-col">
+                    <p>TEACHER'S REFERENCE FORM</p>
+                </div>
+                <div class="col upload-col">
+                    <div class="file-drop-area">
+                        Drag & Drop or click to upload
+                    </div>
+                    <input type="file" class="file-input" name="teach_ref_form" multiple style="display: none;">
+                    <div class="file-list mt-3"></div>
+                </div>
+            </div>
+            <div class="row requirement-row">
+                <div class="col status-col">
+                     <?php
+                        $document_type_id="Community Leader Reference Form";
+                        $document_status = getDocumentStatusById($conn, $applicant_ID, $document_type_id);
+                        echo getStatusIcon($document_status);
+                    ?>
+                    </div>
+                <div class="col requirement-col">
+                    <p>COMMUNITY LEADER REFERENCE FORM</p>
+                </div>
+                <div class="col upload-col">
+                    <div class="file-drop-area">
+                        Drag & Drop or click to upload
+                    </div>
+                    <input type="file" class="file-input" name="com_lead_ref_form" multiple style="display: none;">
+                    <div class="file-list mt-3"></div>
+                </div>
+            </div>
+            <div class="row requirement-row">
+                <div class="col status-col">
+                     <?php
+                        $document_type_id="Admission Slip";
+                        $document_status = getDocumentStatusById($conn, $applicant_ID, $document_type_id);
+                        echo getStatusIcon($document_status);
+                    ?>
+                    </div>
+                <div class="col requirement-col">
+                    <p>ADMISSION SLIP</p>
+                </div>
+                <div class="col upload-col">
+                        <div class="file-drop-area">
+                            Drag & Drop or click to upload
+                        </div>
+                        <input type="file" class="file-input" name="admission_slip" multiple style="display: none;">
+                        <div class="file-list mt-3"></div>
+                    </div>
+            </div>
+        <button type="submit">Submit Files</button>
     </form>
 </div>
+
+
+
 
 <?php 
 include_once("website/templates/footer.php");
@@ -197,7 +346,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             fileDropArea.classList.remove('dragover');
             handleFiles(e.dataTransfer.files, fileList);
-            fileInput.files = e.dataTransfer.files; 
+            fileInput.files = e.dataTransfer.files; // Assign files to the input
         });
 
         fileDropArea.addEventListener('click', function() {
@@ -218,22 +367,7 @@ document.addEventListener('DOMContentLoaded', function() {
             fileList.appendChild(listItem);
         }
     }
-    var submitButton = document.querySelector('button[name="submit"]');
-    submitButton.addEventListener('click', function() {
-        var successMessage = document.getElementById('success-message');
-        if (successMessage) {
-            successMessage.style.display = 'block';
-            setTimeout(function() {
-                successMessage.style.display = 'none';
-            }, 5000); 
-        }
-        var updateMessage = document.getElementById('update-message');
-        if (updateMessage) {
-            updateMessage.style.display = 'block';
-            setTimeout(function() {
-                updateMessage.style.display = 'none';
-            }, 5000); 
-        }
-    });
 });
 </script>
+
+
