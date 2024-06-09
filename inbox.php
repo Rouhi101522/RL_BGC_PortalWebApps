@@ -1,92 +1,157 @@
-<?php 
-DEFINE("TITLE", "MESSAGES");
-include_once("website/templates/header.php");
+    <?php
+    ini_set('display_errors', 0);
+    error_reporting(E_ALL & ~E_NOTICE);
 
-if($_SESSION['authorized'] == false){
-    header("location: index.php");
-  }
+        session_start();
+        include_once("website/templates/header.php");
+        include_once("website/config.php");
 
-?>
+        if (!isset($_SESSION['auth_user'])) {
+            header("location: login.php");
+            exit();
+        }
 
-<div class="inbox" style="padding: 150px;">
-    <div class="container p-0">
-        <div class="card">
-            <div class="row g-0">
-                <div class="col-12 col-lg-5 col-xl-3 border-right">
-                    <div class="px-4 d-none d-md-block">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1">
-                                <input type="text" class="form-control my-3" placeholder="Search...">
-                            </div>
+        $applicant_ID = $_SESSION['auth_user'];
+
+        
+        // Fetch user details
+        $stmt = $conn->prepare("SELECT * FROM person_inf WHERE applicant_ID = ?");
+        $stmt->execute([$applicant_ID]);
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($data) {
+                $applicant_profile = htmlspecialchars($data['applicant_profile']);
+                $last_name = htmlspecialchars($data['last_name']);
+                $first_name = htmlspecialchars($data['first_name']);
+                $middle_name = htmlspecialchars($data['middle_name']);
+                $sender = $last_name . ", " . $first_name . " " . $middle_name;
+            } else {
+                // Handle case where no user data is found
+                echo "No user data found.";
+                exit();
+            }
+
+        try {
+        // Fetch messages sent by the user and messages sent to the user
+        $stmt = $conn->prepare("SELECT sender, receiver, message, `timestamp` FROM messages WHERE (sender = 'admin' AND receiver = ?) OR (sender = ? AND receiver = 'admin') ORDER BY `timestamp` DESC");
+        $stmt->execute([$applicant_ID, $applicant_ID]);
+        $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Inside the existing PHP code, before the closing PHP tag
+        if (isset($_POST['send'])) {
+            $name = htmlspecialchars($_POST['myname']);
+            $receiver_name = htmlspecialchars($_POST['receiver_name']);
+            $message = htmlspecialchars($_POST['message']);
+            $applicant_ID = $_SESSION['auth_user'];
+            
+
+            $sql = $conn->prepare("INSERT INTO messages (user_id, sender, receiver, message) VALUES (?, ?, ?, ?)");
+            if ($sql->execute([$applicant_ID, $name, $receiver_name, $message])) {
+                echo "Message sent successfully.";
+                // Refresh page to display new message
+                header("Location: inbox.php");
+                exit();
+            } else {
+                echo "Failed to send message.";
+            }
+        }
+
+            
+            }catch (PDOException $e) {
+            // Handle database errors
+            echo "Error: " . $e->getMessage();
+        }
+        ?>
+
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Inbox</title>
+            <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
+            <script>
+                $(document).ready(function() {
+                    var $container = $("#messages");
+                    $container.load('fetch_message.php');
+                    setInterval(function() {
+                        $container.load('fetch_message.php');
+                    }, 3000);
+                });
+            </script>
+        </head>
+        <body>
+        <div class="container py-5" style="margin-top:100px">
+            <div class="row">
+                <div class="col-md-6 col-lg-5 col-xl-4 mb-4 mb-md-0">
+                    <h5 class="font-weight-bold mb-3 text-center text-lg-start" style="font-weight: bold; font-size: 18px;">MESSAGE US</h5>
+                    <div class="card">
+                        <div class="card-body">
+                            <ul class="list-unstyled mb-0">
+                                <li class="p-2 border-bottom" style="background-color: #eee; font-size: 15px;">
+                                    <a href="#!" class="d-flex justify-content-between">
+                                        <div class="d-flex flex-row">
+                                            <div class="pt-1">
+                                                <p class="fw-bold mb-0">REAL LIFE ADMIN</p>
+                                            </div>
+                                        </div>
+                                        <div class="pt-1"></div>
+                                    </a>
+                                </li>
+                            </ul>
                         </div>
                     </div>
-
-                    <?php
-                    require 'website\config.php';
-
-                    $stmt = $conn->query('SELECT * FROM acc_inf');
-                    $users = $stmt->fetchAll();
-                    
-                    foreach ($users as $person_inf) {
-                        echo '<a href="#" class="list-group-item list-group-item-action border-0">';
-                        echo '    <div class="d-flex align-items-start">';
-                        echo '        <img src="' . $user['profileImg'] . '" class="rounded-circle mr-1" alt="" width="40" height="40">';
-                        echo '        <div class="flex-grow-1 ml-3">';
-                        echo '            ' . $user['fname'] . '';
-                        echo '            <div class="small"><span class="fas fa-circle chat-' . $user['status'] . '"></span> ' . ucfirst($user['status']) . '</div>';
-                        echo '        </div>';
-                        echo '    </div>';
-                        echo '</a>';
-                    }
-                    ?>
-                    
-                    <hr class="d-block d-lg-none mt-1 mb-0">
                 </div>
-                <div class="col-12 col-lg-7 col-xl-9">
-                    <div class="py-2 px-4 border-bottom d-none d-lg-block">
-                        <div class="d-flex align-items-center py-1">
-                            <div class="position-relative">
-                                <img src="" class="rounded-circle mr-1" alt="" width="40" height="40">
-                            </div>
-                            <div class="flex-grow-1 pl-3">
-                                <strong>ADMIN</strong>
-                                <div class="text-muted small"><em>TEXT PLACEHOLDER</em></div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="position-relative">
-                        <div class="chat-messages p-4">
-                            <?php include 'fetch_messages.php'; ?>
-                        </div>
-                    </div>
-                    
-                    <div class="flex-grow-0 py-3 px-4 border-top">
-                        <form method="post" action="send_message.php">
-                            <div class="input-group">
-                                <input type="text" class="form-control" name="message" placeholder="Type your message">
-                                <button class="btn btn-primary" type="submit">Send</button>
-                            </div>
-                        </form>
-                    </div>
+                <div class="col-md-6 col-lg-7 col-xl-8">
+                    <ul class="list-unstyled">
+                        <div class="scroll" id="messages" style="overflow-y: scroll; height: 400px;"></div>
+                        <li class="bg-white mb-3">
+                            <form id="message-form" method="post">
+                                <div class="form-outline">
+                                    <input id="myName1" name="myname" value="<?php echo $sender; ?> disabled">
+                                    <div class="input-group">
+                                        <input type="hidden" id="receiver" name="receiver_name" value="admin">
+                                        <textarea class="form-control" id="textAreaExample2" rows="2" style="font-size: 15px; text-transform: none;" placeholder="Type your message..." name="message"></textarea>
+                                        <button type="submit" name="send" class="btn btn-info btn-rounded float-end">Send</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
-<?php 
-include_once("website/templates/footer.php");
+        <?php include_once("website/templates/footer.php"); ?>
 
-require 'website\config.php';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $user_id = 1; // Replace with dynamic user id
-    $message = $_POST['message'];
-
-    $stmt = $pdo->prepare('INSERT INTO messages (user_id, message) VALUES (?, ?)');
-    $stmt->execute([$user_id, $message]);
-
-    header('Location: index.php');
-}
-?>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+        <script src="jquery.timeago.js"></script>
+        <script type="text/javascript">
+            jQuery(document).ready(function(){
+                $("time.timeago").timeago();
+            });
+        </script>
+        <script>
+            $(document).ready(function() {
+                $('#message-form').submit(function(event) {
+                    event.preventDefault();
+                    var user = $('#myName1').val();
+                    var receive = $('#receiver').val();
+                    var message = $('#textAreaExample2').val();
+                    $.ajax({
+                        url: 'send_message-client.php',
+                        method: 'POST',
+                        data: {sender: user, receiver: receive, msg: message},
+                        success: function(response) {
+                            $('#textAreaExample2').val('');
+                        }
+                    });
+                });
+            });
+        </script>
+        <script>
+            AOS.init({
+                duration: 800,
+                offset: 150,
+            });
+        </script>
+        </body>
+        </html>

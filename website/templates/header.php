@@ -1,5 +1,10 @@
 <?PHP 
+
+ ini_set('display_errors', 0);
+ error_reporting(E_ALL & ~E_NOTICE);
+
 include_once("website\config.php");
+
 ?>
 
 <!DOCTYPE HTML>
@@ -16,18 +21,22 @@ include_once("website\config.php");
     <link rel="stylesheet" href="css/styles.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="bootstrap-5.3.3-dist\bootstrap-5.3.3-dist\css\bootstrap.min.css"> <!-- local Btsrp file -->
-
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <body>
 
-<nav class="navbar fixed-top">
+<nav class="navbar fixed-top navbar-dark">
   <div class="container-fluid">
   <img class="navbar-brand" src="assets\rl\Logo\Real LIFE Logo ON black.png" alt="Logo">
-    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
+  <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation" style="color: white;">
+    <span class="navbar-toggler-icon"></span>
+</button>
+
     </button>
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
       <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Offcanvas</h5>
+        <h5 class="offcanvas-title" id="offcanvasNavbarLabel">MENU</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>
       <div class="offcanvas-body">
@@ -35,14 +44,20 @@ include_once("website\config.php");
           <li class="nav-item">
             <a class="nav-link" aria-current="page" href="home.php">Home</a>
           </li>
-          <li class="nav-item">
+          <!-- <li class="nav-item">
             <a class="nav-link" href="#">Announcements</a>
-          </li>
-          <li class="nav-item">
+          </li> -->
+          <!-- <li class="nav-item">
           <a class="nav-link" href="#">Frequently Asked Questions</a>
-        </li>
+        </li> -->
         <li class="nav-item">
           <a class="nav-link" href="inbox.php">Chats</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="update_info.php">Update Profile</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="logout.php">Log out</a>
         </li>
           <!-- <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -58,11 +73,13 @@ include_once("website\config.php");
             </ul>
           </li> -->
         </ul>
-        <form class="d-flex mt-3" role="search">
+        <!-- <form class="d-flex mt-3" role="search">
           <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-          <button class="btn btn-outline-success" type="submit">Search</button>
+          <button class="btn btn-outline-success" type="submit">Search</button> -->
         </form>
       </div>
     </div>
   </div>
 </nav>
+
+

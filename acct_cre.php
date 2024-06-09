@@ -1,7 +1,8 @@
 
 <?php
 session_start();
-ini_set('display_errors', 1);
+
+ini_set('display_errors', 0);
 error_reporting(E_ALL & ~E_NOTICE);
 
 require 'website/PHPMailer/PHPMailer.php';
@@ -152,3 +153,21 @@ if (isset($_POST['submit'])) {
 <?php 
 include_once("website/templates/footer.php");
 ?>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const emailInput = document.getElementById('email');
+        const createAccountBtn = document.getElementById('createAccountBtn');
+
+        // Check if email is stored in local storage and populate the email input
+        const storedEmail = localStorage.getItem('stickyEmail');
+        if (storedEmail) {
+            emailInput.value = storedEmail;
+        }
+
+        // Store the email in local storage when the button is clicked
+        createAccountBtn.addEventListener('click', function() {
+            localStorage.setItem('stickyEmail', emailInput.value);
+        });
+    });
+</script>
